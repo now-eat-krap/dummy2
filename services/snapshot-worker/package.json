@@ -1,0 +1,6 @@
+{
+  "name": "snapshot-worker",
+  "type": "module",
+  "dependencies": { "puppeteer": "^22.15.0" },
+  "scripts": { "start": "node src/worker.js" }
+}

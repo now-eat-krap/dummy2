@@ -1,0 +1,8 @@
+# 공통 Node 컨테이너 (collector/heatmap-api/snapshot-api/deploy-hook)
+FROM node:20-slim
+WORKDIR /app
+COPY package*.json ./
+# 패키지 설치 (CI or fallback)
+RUN npm ci --omit=dev || npm i --omit=dev
+COPY . .
+CMD ["npm","start"]

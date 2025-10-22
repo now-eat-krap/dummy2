@@ -1,0 +1,122 @@
+version: "3.9"
+services:
+  influxdb:
+    image: influxdb:2.7
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: logflow
+      DOCKER_INFLUXDB_INIT_PASSWORD: logflow1234
+      DOCKER_INFLUXDB_INIT_ORG: logflow
+      DOCKER_INFLUXDB_INIT_BUCKET: logflow
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: logflow-dev-token
+      DOCKER_INFLUXDB_INIT_RETENTION: 30d
+    volumes:
+      - influx-data:/var/lib/influxdb2
+    ports: ["8086:8086"]
+    healthcheck:
+      test: ["CMD", "influx", "ping", "--host", "http://localhost:8086"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # 이벤트 수집기 + 통합 스니펫 정적 서빙
+  collector:
+    build:
+      context: ../services/collector
+      dockerfile: ../../docker/Dockerfile.node
+    environment:
+      INFLUX_URL: http://influxdb:8086
+      INFLUX_TOKEN: logflow-dev-token
+      INFLUX_ORG: logflow
+      INFLUX_BUCKET: logflow
+      ALLOW_ORIGINS: "*"
+      PORT: 8080
+    volumes:
+      - ../services/collector:/app:rw
+    ports: ["8080:8080"]
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # 히트맵 집계 API
+  heatmap-api:
+    build:
+      context: ../services/heatmap-api
+      dockerfile: ../../docker/Dockerfile.node
+    environment:
+      INFLUX_URL: http://influxdb:8086
+      INFLUX_TOKEN: logflow-dev-token
+      INFLUX_ORG: logflow
+      INFLUX_BUCKET: logflow
+      PORT: 8081
+    volumes:
+      - ../services/heatmap-api:/app:rw
+    ports: ["8081:8081"]
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # 스냅샷 큐 API (+ 스냅샷 스니펫 정적 서빙 유지)
+  snapshot-api:
+    build:
+      context: ../services/snapshot-api
+      dockerfile: ../../docker/Dockerfile.node
+    environment:
+      QUEUE_DIR: /data/queue
+      PORT: 8082
+    volumes:
+      - ../services/snapshot-api:/app:rw
+      - queue:/data/queue
+    ports: ["8082:8082"]
+    restart: unless-stopped
+
+  # 스냅샷 생성 워커
+  snapshot-worker:
+    build:
+      context: ../services/snapshot-worker
+      dockerfile: ../../docker/Dockerfile.puppeteer
+    environment:
+      QUEUE_DIR: /data/queue
+      OUT_DIR: /data/snapshots
+      USER_DATA_DIR: /data/cache/puppeteer
+      MAX_CONC: 2
+    volumes:
+      - ../services/snapshot-worker:/app:rw
+      - queue:/data/queue
+      - snapshots:/data/snapshots
+      - cache:/data/cache
+    depends_on: [ snapshot-api ]
+    restart: unless-stopped
+
+  # 배포 웹훅 수신기(선택)
+  deploy-hook:
+    build:
+      context: ../services/deploy-hook
+      dockerfile: ../../docker/Dockerfile.node
+    environment:
+      SNAPSHOT_API: http://snapshot-api:8082
+      WEBHOOK_SECRET: "change-me"
+      ROUTE_MAP_FILE: /configs/route_map.json
+      PORT: 8084
+    volumes:
+      - ../services/deploy-hook:/app:rw
+      - ../configs:/configs:ro
+    ports: ["8084:8084"]
+    restart: unless-stopped
+
+  # 정적 대시보드 (스냅샷 볼륨 마운트)
+  dashboard:
+    image: nginx:alpine
+    volumes:
+      - snapshots:/usr/share/nginx/html/snapshots:ro
+      - ../apps/dashboard:/usr/share/nginx/html:ro
+    ports: ["8083:80"]
+    restart: unless-stopped
+
+volumes:
+  influx-data:
+  snapshots:
+  queue:
+  cache:

@@ -1,0 +1,7 @@
+# Puppeteer 내장 이미지 (Chromium 포함)
+FROM ghcr.io/puppeteer/puppeteer:22.15.0
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --omit=dev || npm i --omit=dev
+COPY . .
+CMD ["npm","start"]

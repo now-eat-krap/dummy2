@@ -1,0 +1,6 @@
+[
+  { "pattern": "src/pages/index",   "url": "https://example.com/" },
+  { "pattern": "src/pages/about",   "url": "https://example.com/about" },
+  { "pattern": "src/pages/feed",    "url": "https://example.com/feed" },
+  { "pattern": "src/routes/blog",   "url": "https://example.com/blog" }
+]
