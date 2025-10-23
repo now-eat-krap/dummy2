@@ -7,13 +7,6 @@ from pathlib import Path
 from typing import List, Optional
 import asyncio, time, json, io, os, hashlib
 from PIL import Image
-from fastapi.staticfiles import StaticFiles
-from pathlib import Path
-
-# 이미 있던 mount들 아래에 추가
-PUBLIC_DIR = Path(__file__).resolve().parents[1] / "public"  # /app/public
-app.mount("/public", StaticFiles(directory=str(PUBLIC_DIR)), name="public")
-
 
 DATA_DIR = Path(os.getenv("DATA_DIR", "./data"))
 SNAP_DIR = DATA_DIR / "snapshots"
@@ -26,6 +19,9 @@ MAX_TILES = int(os.getenv("MAX_TILES", "50"))
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 app.mount("/snapshots", StaticFiles(directory=str(SNAP_DIR)), name="snapshots")
+
+PUBLIC_DIR = Path(__file__).resolve().parents[1] / "public"
+app.mount("/public", StaticFiles(directory=str(PUBLIC_DIR)), name="public")
 
 def sha1(s: str) -> str:
     return hashlib.sha1(s.encode("utf-8")).hexdigest()
