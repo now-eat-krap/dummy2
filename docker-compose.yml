@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  snapshot-api:
+    build: .
+    image: snapshot-api:local
+    environment:
+      DATA_DIR: /data
+      CAPTURE_TTL_SEC: ${CAPTURE_TTL_SEC:-43200}
+      MAX_TILES: ${MAX_TILES:-50}
+    ports:
+      - "8080:8080"
+    volumes:
+      - snapshots:/data
+    shm_size: "1g"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+volumes:
+  snapshots:
