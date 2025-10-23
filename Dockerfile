@@ -4,6 +4,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
+COPY public ./public
 RUN mkdir -p ${DATA_DIR} && chown -R pwuser:pwuser ${DATA_DIR}
 VOLUME ["/data"]
 EXPOSE 8080
