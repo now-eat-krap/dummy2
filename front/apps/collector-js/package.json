@@ -1,0 +1,12 @@
+{
+  "name": "@apilog/collector-js",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "tsup src/index.ts --format iife --global-name apilog --minify --sourcemap --outfile dist/apilog.js && tsup src/embed.ts --format iife --minify --sourcemap --outfile dist/embed.js"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  }
+}
