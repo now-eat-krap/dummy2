@@ -29,15 +29,14 @@ services:
       - influxdb
 
   nginx:
-    build: ./infra/nginx
+    build: 
+      context: .                # <-- 여기! 전체 리포를 컨텍스트로 준다
+      dockerfile: infra/nginx/Dockerfile
     container_name: apilog-nginx
     ports:
       - "8080:80"
     depends_on:
       - api
-    volumes:
-      - ./front/apps/dashboard/dist:/usr/share/nginx/html:ro
-      - ./front/apps/collector-js/dist:/usr/share/nginx/html/apilog:ro
 
 volumes:
   influx-data:
