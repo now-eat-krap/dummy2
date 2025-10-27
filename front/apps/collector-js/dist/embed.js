@@ -23,6 +23,18 @@
  */
 
 (function () {
+  // ---- global guard (중복 실행 방지) ----
+  // If this script already ran once on this page, bail out immediately.
+  // 이 스크립트가 이미 실행된 상태면 그냥 바로 끝낸다.
+  if (typeof window !== "undefined") {
+    if (window.__APILOG_EMBED_BOOTED__) {
+      return;
+    }
+    window.__APILOG_EMBED_BOOTED__ = true;
+  }
+
+  // ----- helpers -----
+
   // ---- Utility helpers / 유틸 함수 --------------------------------------------
 
   /**
