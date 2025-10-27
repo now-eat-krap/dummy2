@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>apilog dashboard (MVP)</title>
+    <style>
+      body { font-family: system-ui, sans-serif; padding: 2rem; }
+      pre { background: #111; color: #0f0; padding: 1rem; border-radius: 8px; }
+    </style>
+  </head>
+  <body>
+    <h1>apilog dashboard (MVP)</h1>
+
+    <p>
+      <button id="reload">Load Top Pages (last 1h)</button>
+    </p>
+
+    <pre id="out">// results here</pre>
+
+    <script>
+      async function loadTopPages() {
+        const res = await fetch("/api/query/top-pages");
+        const json = await res.json();
+        document.getElementById("out").textContent = JSON.stringify(json, null, 2);
+      }
+
+      document.getElementById("reload").addEventListener("click", loadTopPages);
+    </script>
+
+    <hr />
+
+    <h2>Collector Snippet Demo</h2>
+    <p>
+      아래 버튼을 눌러서 브라우저 이벤트를 적재해보세요.
+    </p>
+
+    <button onclick="window.apilog.flushNow()">Flush Now (send batch)</button>
+
+    <script
+      src="/apilog/embed.js"
+      data-site-id="main"
+      data-ingest-url="/api/ingest/events"
+      async
+    ></script>
+
+    <script src="/apilog/apilog-dev.js"></script>
+  </body>
+</html>
