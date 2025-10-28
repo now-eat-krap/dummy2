@@ -1,0 +1,88 @@
+# -------------------------------------------------
+# 1. Node / frontend
+# -------------------------------------------------
+node_modules/
+pnpm-lock.yaml
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+.vite/
+.cache/
+.coverage/
+.DS_Store
+
+# 빌드 산출물 (dashboard, collector-js 등)
+front/apps/**/dist/
+front/apps/**/build/
+front/apps/**/.rollup.cache/
+front/apps/**/.turbo/
+
+# Storybook 같은 거 쓸 경우
+storybook-static/
+
+# -------------------------------------------------
+# 2. Python / backend
+# -------------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache/
+*.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.venv/
+venv/
+.env
+.env.*
+.env.local
+*.sqlite3
+
+# uv / pip build stuff
+build/
+dist/
+*.egg-info/
+*.egg
+
+# -------------------------------------------------
+# 3. Docker / container noise
+# -------------------------------------------------
+# 이미지 빌드 중간 산출물 로컬에 쌓을 경우 대비
+*.tar
+
+# -------------------------------------------------
+# 4. Editor / OS
+# -------------------------------------------------
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+*.swp
+*.swo
+Thumbs.db
+.DS_Store
+
+# -------------------------------------------------
+# 5. local runtime secrets / config
+# -------------------------------------------------
+# 실제 운영용 비밀 키, 토큰 등은 절대 커밋 금지
+.env
+*.env
+.env.*.local
+
+# docker-compose override 같은 로컬 개발 전용 파일
+docker-compose.override.yml
+
+# -------------------------------------------------
+# 6. generated client bundles that shouldn't be versioned
+# -------------------------------------------------
+# 우리가 nginx 컨테이너에 COPY하는건 dist/ 산출물이니까,
+# dist/ 자체는 git에 올릴 필요 없음 (배포는 Docker 빌드에서 만들거라)
+front/apps/collector-js/dist/
+front/apps/dashboard/dist/
